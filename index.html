@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     DEVOLUÇÕES WHATSAPP v3.1.0 | 2026-06-02
+     Marcel H. Nogueira © 2026
+     ============================================================ -->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devoluções WhatsApp v3.1.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#eef0f3;color:#222;min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#1a5276,#148f77);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;height:52px;box-shadow:0 2px 10px rgba(0,0,0,.25);flex-shrink:0}
+header h1{font-size:16px;font-weight:700}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.pill{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.25);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:#aaa;flex-shrink:0}
+.dot.live{background:#2ecc71;box-shadow:0 0 0 3px rgba(46,204,113,.3);animation:pu 2s infinite}
+.dot.err{background:#e74c3c}.dot.spin{background:#f39c12;animation:pu .6s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-hdr{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600}
+.btn-hdr:hover{background:rgba(255,255,255,.3)}
+
+/* SCREENS */
+.screen{display:none;flex:1}
+.screen.flex{display:flex}
+.screen.block{display:block}
+
+/* UPLOAD */
+#upload-screen{align-items:center;justify-content:center;padding:24px}
+.ucard{background:#fff;border-radius:16px;padding:36px 32px;max-width:540px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.ucard-center{text-align:center}
+.ucard .ico{font-size:48px;margin-bottom:12px}
+.ucard h2{font-size:20px;color:#1a5276;margin-bottom:8px}
+.ucard .sub{font-size:13px;color:#666;line-height:1.7;margin-bottom:20px}
+.src-tabs{display:flex;border:1px solid #ddd;border-radius:10px;overflow:hidden;margin-bottom:20px}
+.src-tab{flex:1;padding:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#f8f9fa;color:#666;transition:all .2s}
+.src-tab.active{background:#1a5276;color:#fff}
+.src-panel{display:none;text-align:left}
+.src-panel.active{display:block}
+.src-panel p{font-size:13px;color:#555;margin-bottom:14px;line-height:1.6}
+.btn-primary{display:flex;align-items:center;justify-content:center;gap:9px;background:#1a5276;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%;transition:background .2s}
+.btn-primary:hover{background:#154360}
+.btn-ms{display:flex;align-items:center;justify-content:center;gap:9px;background:#0078d4;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%;transition:background .2s}
+.btn-ms:hover{background:#106ebe}
+.btn-ms:disabled{background:#aaa;cursor:not-allowed}
+.note-box{background:#f8f9fa;border-radius:8px;padding:10px 14px;font-size:11px;color:#888;margin-top:12px;line-height:1.6}
+.warn-box{background:#fef9e7;border:1px solid #f39c12;border-radius:8px;padding:10px 14px;font-size:12px;color:#856404;margin-top:10px;line-height:1.6}
+.err-od{font-size:12px;color:#e74c3c;margin-top:8px;min-height:16px;text-align:center}
+
+/* UPLOAD FOOTER */
+.ucard-footer{text-align:center;margin-top:20px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#bbb;line-height:1.9}
+.ucard-footer strong{color:#1a5276}
+.ucard-footer a{color:#1a5276;text-decoration:none;font-weight:600}
+.ver-badge{background:#1a5276;color:#fff;border-radius:8px;padding:1px 8px;font-size:10px;font-weight:700;margin-left:4px}
+
+/* PICKER */
+#picker-screen{align-items:center;justify-content:center;padding:24px}
+.picker-card{background:#fff;border-radius:16px;padding:28px;max-width:540px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.picker-card h2{font-size:18px;color:#1a5276;margin-bottom:8px}
+.picker-card p{font-size:13px;color:#666;margin-bottom:14px}
+.user-bar{display:flex;align-items:center;gap:10px;background:#f0f7ff;border-radius:8px;padding:10px 14px;margin-bottom:16px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#0078d4;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.uname{font-size:13px;font-weight:700;color:#1a5276}
+.uemail{font-size:11px;color:#888}
+.btn-logout{margin-left:auto;background:none;border:1px solid #ddd;color:#888;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.btn-logout:hover{border-color:#e74c3c;color:#e74c3c}
+.search-inp{width:100%;border:1.5px solid #ccc;border-radius:8px;padding:8px 13px;font-size:13px;outline:none;margin-bottom:10px}
+.search-inp:focus{border-color:#1a5276}
+.file-list{max-height:280px;overflow-y:auto;border:1px solid #eee;border-radius:8px}
+.file-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background .1s}
+.file-item:last-child{border-bottom:none}
+.file-item:hover{background:#eaf4fb}
+.finfo strong{display:block;font-size:13px;color:#222}
+.finfo span{font-size:11px;color:#999}
+.fload{text-align:center;padding:24px;color:#aaa;font-size:13px}
+
+/* CONFIG */
+#config-screen{padding:20px}
+.cfg-wrap{max-width:740px;margin:0 auto}
+.cfg-header{background:#fff;border-radius:12px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.07);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cfg-header h2{font-size:18px;color:#1a5276;margin-bottom:4px}
+.cfg-header p{font-size:13px;color:#666;line-height:1.5;max-width:460px}
+.cfg-top-btns{display:flex;gap:8px;flex-shrink:0}
+.btn-add{background:#25D366;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-add:hover{background:#1da851}
+.btn-back{background:#eee;color:#333;border:none;padding:9px 14px;border-radius:8px;font-size:13px;cursor:pointer}
+.btn-back:hover{background:#ddd}
+.cfg-saved{font-size:12px;color:#27ae60;font-weight:700}
+.mesa-list{display:flex;flex-direction:column;gap:10px}
+.mesa-card{background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.07);padding:16px 18px;border-left:4px solid #25D366}
+.mesa-card.no-link{border-left-color:#f39c12}
+.mesa-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.mesa-num{background:#1a5276;color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:8px;white-space:nowrap}
+.mesa-st{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px}
+.mesa-st.ok{background:#d5f5e3;color:#1e8449}
+.mesa-st.nok{background:#fef9e7;color:#d35400}
+.link-row{display:flex;gap:8px}
+.link-inp{flex:1;border:1.5px solid #ddd;border-radius:7px;padding:8px 12px;font-size:13px;outline:none;font-family:monospace;color:#0078d4;min-width:0}
+.link-inp:focus{border-color:#25D366}
+.link-inp.has-link{background:#f0fff4;border-color:#25D366}
+.mesa-btns{display:flex;gap:6px;flex-shrink:0}
+.btn-sv{background:#25D366;color:#fff;border:none;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-sv:hover{background:#1da851}
+.btn-tst{background:#0078d4;color:#fff;border:none;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer}
+.btn-tst:hover{background:#106ebe}
+.btn-del{background:none;border:1px solid #e74c3c;color:#e74c3c;padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer}
+.btn-del:hover{background:#fadbd8}
+.mesa-hint{font-size:11px;color:#aaa;line-height:1.5;margin-top:6px}
+.add-form{background:#f8fff8;border:2px dashed #25D366;border-radius:10px;padding:16px 18px;display:none;margin-bottom:12px}
+.add-form.open{display:block}
+.add-form h4{font-size:14px;color:#1a5276;margin-bottom:10px;font-weight:700}
+.add-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.add-row input{border:1.5px solid #ddd;border-radius:7px;padding:8px 12px;font-size:13px;outline:none;flex:1;min-width:120px}
+.add-row input:focus{border-color:#1a5276}
+.btn-confirm{background:#1a5276;color:#fff;border:none;padding:8px 20px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-confirm:hover{background:#154360}
+.btn-cancel-add{background:#eee;color:#333;border:none;padding:8px 14px;border-radius:7px;font-size:13px;cursor:pointer}
+.cfg-msg{text-align:center;font-size:12px;color:#27ae60;font-weight:700;margin-top:10px;min-height:18px}
+
+/* MAIN */
+#main-screen{flex-direction:column}
+.sbar{background:#e8f8f5;border-bottom:3px solid #1abc9c;padding:7px 18px;font-size:12px;color:#0e6655;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0}
+.sbar .fn{font-weight:700}.sbar .ls{margin-left:auto;font-size:11px;color:#888}
+.btn-ch{background:none;border:1px solid #1a5276;color:#1a5276;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer}
+.btn-ch:hover{background:#eaf4fb}
+.sbar.pulse{animation:sbp .4s ease-out}
+@keyframes sbp{0%{background:#a9dfbf}100%{background:#e8f8f5}}
+
+/* TABS */
+.tabs-bar{background:#fff;border-bottom:2px solid #eee;padding:0 18px;display:flex;align-items:center;gap:4px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.tab-btn{position:relative;padding:10px 16px;font-size:13px;font-weight:600;color:#888;background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn:hover{color:#1a5276}
+.tab-btn.active{color:#1a5276;border-bottom-color:#1a5276}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;background:#e74c3c;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 5px;margin-left:6px}
+.tab-badge.zero{display:none}
+
+/* TOOLBAR */
+.toolbar{background:#fff;border-bottom:1px solid #ddd;padding:8px 18px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+.toolbar input[type=text]{border:1px solid #ccc;border-radius:7px;padding:6px 11px;font-size:13px;width:190px;outline:none}
+.toolbar input[type=text]:focus{border-color:#1a5276}
+.toolbar select{border:1px solid #ccc;border-radius:7px;padding:6px 9px;font-size:12px;background:#fff}
+.cnt{font-size:11px;color:#999;margin-left:auto;white-space:nowrap}
+
+/* CARDS */
+.cards{padding:14px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.07);border-left:5px solid #ccc}
+.card.st-dev{border-left-color:#e74c3c}
+.card.st-agu{border-left-color:#2980b9}
+.card.st-rep{border-left-color:#e67e22}
+.card.st-res{border-left-color:#27ae60}
+.card.is-new{animation:hl 4s ease-out}
+@keyframes hl{0%{background:#d5f5e3}100%{background:#fff}}
+.card-body{padding:14px 16px;display:grid;grid-template-columns:24px 1fr 1fr 1fr 1fr 100px 120px 110px;gap:0 14px;align-items:start}
+.col-lbl{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.c-num{color:#ccc;font-size:12px;padding-top:4px}
+.mname{font-weight:700;font-size:13px;color:#1a5276;line-height:1.2}
+.mplaca,.mtel{font-size:11px;color:#888;margin-top:1px}
+.st-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-bottom:5px;white-space:nowrap}
+.card.st-dev .st-badge{background:#fadbd8;color:#c0392b}
+.card.st-agu .st-badge{background:#d6eaf8;color:#1a5276}
+.card.st-rep .st-badge{background:#fdebd0;color:#d35400}
+.card.st-res .st-badge{background:#d5f5e3;color:#1e8449}
+.card.st-def .st-badge{background:#f2f3f4;color:#666}
+.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.badge-novo{background:#e74c3c;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:uppercase}
+.badge-ns{background:#f39c12;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:6px}
+.sv-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;background:#d6eaf8;color:#1a5276;white-space:nowrap}
+.mesa-lbl{font-size:10px;color:#999;margin-top:3px}
+.has-grp{color:#27ae60;font-weight:700}
+.pdv-name{font-size:12px;font-weight:600;color:#222}
+.obs-text{font-size:11px;color:#777;font-style:italic;margin-top:3px;line-height:1.4}
+.vl{font-weight:700;color:#117a65;font-size:13px}
+.mt{font-size:11px;color:#c0392b;font-style:italic;line-height:1.4}
+.btn-wpp{display:inline-flex;align-items:center;gap:5px;background:#25D366;color:#fff;border:none;font-size:11px;font-weight:700;padding:8px 12px;border-radius:20px;cursor:pointer;transition:background .15s,transform .1s;white-space:nowrap}
+.btn-wpp:hover{background:#1da851;transform:scale(1.04)}
+.btn-wpp.sent{background:#95a5a6;cursor:default}
+.btn-wpp.sent:hover{background:#95a5a6;transform:none}
+.empty{text-align:center;color:#bbb;padding:60px 0;font-size:14px}
+
+/* FOOTER */
+.app-footer{background:#1a5276;color:rgba(255,255,255,.5);font-size:11px;padding:8px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;flex-shrink:0;display:none}
+.app-footer a{color:rgba(255,255,255,.75);cursor:pointer;text-decoration:none;font-weight:600}
+.app-footer a:hover{color:#fff}
+.ver-badge-ftr{background:rgba(255,255,255,.15);border-radius:12px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;max-width:440px;width:92%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal h3{font-size:14px;color:#1a5276;margin-bottom:6px}
+.modal-meta{font-size:12px;margin-bottom:10px;padding:8px 12px;border-radius:7px;line-height:1.5}
+.modal-meta.ok{background:#d5f5e3;color:#1e8449}
+.modal-meta.warn{background:#fef9e7;color:#d35400}
+.prev{font-family:monospace;font-size:11px;background:#f4f6f7;border:1px solid #ddd;border-radius:8px;padding:11px;white-space:pre-wrap;max-height:200px;overflow-y:auto;color:#333;line-height:1.5}
+.step-guide{margin-top:10px;background:#f0f7ff;border-radius:8px;padding:10px 14px;font-size:12px;color:#1a5276;line-height:1.8}
+.copy-toast{display:none;margin-top:8px;background:#d5f5e3;border-radius:7px;padding:8px 12px;font-size:12px;color:#1e8449;font-weight:700;text-align:center}
+.mbtns{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;flex-wrap:wrap}
+.bcan{background:#eee;color:#333;border:none;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px}
+.bsnd{background:#25D366;color:#fff;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:700;text-decoration:none;display:inline-block;cursor:pointer}
+.bsnd:hover{background:#1da851}
+.btn-copy-msg{background:#1a5276;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-copy-msg:hover{background:#154360}
+.btn-copy-msg.copied{background:#27ae60}
+.btn-open-grp{background:#25D366;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-open-grp:hover:not(:disabled){background:#1da851}
+.btn-open-grp:disabled{opacity:.4;cursor:not-allowed}
+
+/* ABOUT */
+.about-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:center;justify-content:center}
+.about-overlay.open{display:flex}
+.about-modal{background:#fff;border-radius:16px;max-width:560px;width:94%;box-shadow:0 16px 48px rgba(0,0,0,.3);overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
+.about-hdr{background:linear-gradient(135deg,#1a5276,#148f77);color:#fff;padding:20px 24px;flex-shrink:0}
+.about-hdr h2{font-size:18px;font-weight:700;margin-bottom:2px}
+.about-hdr p{font-size:12px;opacity:.8}
+.about-body{padding:20px 24px;overflow-y:auto;flex:1}
+.about-body h3{font-size:11px;color:#1a5276;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.vlist{list-style:none;display:flex;flex-direction:column}
+.vi{padding:10px 0;border-bottom:1px solid #f0f0f0;display:grid;grid-template-columns:60px 60px 1fr;gap:8px}
+.vi:last-child{border-bottom:none}
+.vn{font-family:monospace;font-weight:700;color:#1a5276;font-size:12px}
+.vd{font-size:11px;color:#bbb;padding-top:1px}
+.vt{font-size:12px;color:#444;line-height:1.5}
+.vi.cur .vn{color:#fff;background:#1a5276;border-radius:6px;padding:1px 7px;display:inline-block;font-size:10px}
+.vi.cur .vt{color:#222;font-weight:600}
+.about-ftr{padding:14px 24px;border-top:1px solid #eee;display:flex;justify-content:flex-end;flex-shrink:0}
+.btn-cls{background:#1a5276;color:#fff;border:none;padding:9px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+
+@media(max-width:900px){.card-body{grid-template-columns:20px 1fr 1fr 1fr;gap:10px}}
+@media(max-width:580px){.card-body{grid-template-columns:1fr;gap:8px}.c-num{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Devoluções — WhatsApp</h1>
+  <div class="hdr-right">
+    <button class="btn-hdr" id="btn-cfg">⚙️ Grupos de Mesa</button>
+    <div class="pill"><div class="dot" id="dot"></div><span id="slbl">Aguardando...</span></div>
+  </div>
+</header>
+
+<!-- UPLOAD -->
+<div id="upload-screen" class="screen flex">
+  <div class="ucard">
+    <div class="ucard-center">
+      <div class="ico">📂</div>
+      <h2>Conectar à Planilha</h2>
+      <p class="sub">Escolha de onde ler a planilha de devoluções:</p>
+    </div>
+    <div class="src-tabs">
+      <button class="src-tab active" id="tab-local" onclick="switchSrc('local')">💻 Arquivo Local</button>
+      <button class="src-tab" id="tab-od"    onclick="switchSrc('onedrive')">☁️ OneDrive</button>
+    </div>
+    <!-- LOCAL -->
+    <div class="src-panel active" id="panel-local">
+      <p>Selecione o arquivo <strong>.xlsm</strong>. Sync automático a cada <strong>1 segundo</strong>.</p>
+      <input type="file" id="file-input" accept=".xlsx,.xlsm,.xls" style="display:none" onchange="handleFileInput(this)">
+      <button class="btn-primary" onclick="openFile()">
+        <svg width="17" height="17" fill="white" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+        Selecionar Arquivo .xlsm
+      </button>
+      <div class="warn-box" id="local-warn" style="display:none">
+        ⚠️ <strong>Aberto como arquivo local (file://)</strong> — sync automático desativado.<br>
+        Para sync em tempo real, use <strong>INICIAR_SISTEMA.bat</strong> e acesse <code>localhost:8765</code>.<br>
+        Você ainda pode selecionar e visualizar normalmente.
+      </div>
+      <div class="note-box">💡 Se o OneDrive demora a sincronizar a pasta local, use a aba <strong>☁️ OneDrive</strong>.</div>
+    </div>
+    <!-- ONEDRIVE -->
+    <div class="src-panel" id="panel-onedrive">
+      <p>Lê direto do OneDrive via API Microsoft. Atualiza a cada <strong>15 segundos</strong>.</p>
+      <button class="btn-ms" id="btn-od-start" onclick="startMsalLogin()">
+        <svg width="18" height="18" viewBox="0 0 21 21" style="flex-shrink:0"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+        Entrar com Microsoft
+      </button>
+      <div class="err-od" id="err-od"></div>
+      <div class="note-box" style="margin-top:12px">✅ Login via popup — funciona no GitHub Pages<br>🔒 Apenas leitura — não altera dados da planilha</div>
+    </div>
+    <!-- CARD FOOTER -->
+    <div class="ucard-footer">
+      <div><strong>Devoluções WhatsApp</strong> <span class="ver-badge">v3.1.0</span></div>
+      <div>Marcel H. Nogueira © 2026</div>
+      <div><a href="#" onclick="openAbout();return false">📋 Sobre o sistema</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- PICKER -->
+<div id="picker-screen" class="screen flex">
+  <div class="picker-card">
+    <div class="user-bar">
+      <div class="avatar" id="od-avatar">?</div>
+      <div><div class="uname" id="od-uname">—</div><div class="uemail" id="od-uemail">—</div></div>
+      <button class="btn-logout" onclick="odLogout()">Sair</button>
+    </div>
+    <h2>Selecionar planilha</h2>
+    <p>Escolha a planilha de devoluções do OneDrive:</p>
+    <input class="search-inp" type="text" id="file-search" placeholder="🔍 Buscar...">
+    <div class="file-list" id="file-list"><div class="fload">⏳ Carregando...</div></div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div id="config-screen" class="screen block">
+  <div class="cfg-wrap">
+    <div class="cfg-header">
+      <div>
+        <h2>⚙️ Grupos de Mesa — WhatsApp</h2>
+        <p>Cole o link de convite de cada grupo. O botão Enviar abrirá direto no grupo.<br>
+        Como obter: grupo no WhatsApp → ⋮ Mais → Link do grupo → Copiar link</p>
+      </div>
+      <div class="cfg-top-btns">
+        <button class="btn-add" id="btn-add-mesa">+ Nova Mesa</button>
+        <button class="btn-back" id="btn-back-cfg">← Voltar</button>
+      </div>
+    </div>
+    <div class="add-form" id="add-form">
+      <h4>➕ Nova mesa</h4>
+      <div class="add-row">
+        <input type="text" id="new-mesa-num"  placeholder="Número da mesa (ex: 32414)">
+        <input type="text" id="new-mesa-link" placeholder="https://chat.whatsapp.com/..." style="flex:3">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-confirm" id="btn-confirm-add">✅ Adicionar</button>
+        <button class="btn-cancel-add" id="btn-cancel-add">Cancelar</button>
+      </div>
+    </div>
+    <div class="mesa-list" id="mesa-list"></div>
+    <div class="cfg-msg" id="cfg-msg"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main-screen" class="screen block" style="display:none;flex-direction:column">
+  <div class="sbar" id="sbar">
+    <span>📁 <span class="fn" id="fname">—</span></span>
+    <button class="btn-ch" id="btn-change">🔄 Trocar</button>
+    <span class="ls" id="ls">—</span>
+  </div>
+  <div class="tabs-bar">
+    <button class="tab-btn active" id="tab-all"    data-tab="all">📋 Todos <span class="tab-badge zero" id="badge-all">0</span></button>
+    <button class="tab-btn"        id="tab-unsent" data-tab="unsent">⏳ Não Enviados <span class="tab-badge zero" id="badge-unsent">0</span></button>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="🔍 Motorista, PDV, supervisor...">
+    <select id="fst"><option value="">Todos os status</option><option>Devolução</option><option>Aguardando</option><option>Repasse</option><option>Resolvido</option></select>
+    <select id="fsv"><option value="">Todos os supervisores</option></select>
+    <select id="fmt"><option value="">Todos os motivos</option></select>
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="empty" id="empty" style="display:none">Nenhum registro encontrado.</div>
+  <div class="app-footer" id="app-footer">
+    <span>Marcel H. Nogueira © 2026 — Devoluções WhatsApp</span>
+    <span><a onclick="openAbout()">📋 Sobre</a> &nbsp;·&nbsp; <span class="ver-badge-ftr">v3.1.0</span></span>
+  </div>
+</div>
+
+<!-- SEND MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">📲 Prévia</h3>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="prev" id="pmsg"></div>
+    <div class="step-guide" id="step-guide" style="display:none">
+      <strong>Como compartilhar:</strong><br>
+      <span id="s1">① Clique em <strong>Copiar Mensagem</strong></span><br>
+      <span id="s2" style="color:#888">② Clique em <strong>Abrir Grupo</strong></span><br>
+      <span id="s3" style="color:#888">③ No grupo: <strong>Ctrl+V</strong> para colar</span>
+    </div>
+    <div class="copy-toast" id="copy-toast">✅ Mensagem copiada! Agora clique em Abrir Grupo.</div>
+    <div class="mbtns">
+      <button class="bcan" id="btn-modal-close">Fechar</button>
+      <a class="bsnd" id="btn-simple-send" href="#" target="_blank" rel="noopener" style="display:none">📲 Abrir WhatsApp →</a>
+      <button class="btn-copy-msg" id="btn-copy-msg" style="display:none">📋 1. Copiar</button>
+      <button class="btn-open-grp" id="btn-open-grp" style="display:none" disabled>📱 2. Abrir Grupo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT MODAL -->
+<div class="about-overlay" id="about-overlay">
+  <div class="about-modal">
+    <div class="about-hdr">
+      <h2>📋 Devoluções WhatsApp</h2>
+      <p>Marcel H. Nogueira — Sistema de compartilhamento de devoluções</p>
+    </div>
+    <div class="about-body">
+      <h3>Histórico de Versões</h3>
+      <ul class="vlist">
+        <li class="vi cur"><span class="vn">3.1.0</span><span class="vd">02/06/2026</span><span class="vt">Reconstrução completa do zero. Fix definitivo dos botões. Footer correto no card. Sem patches acumulados.</span></li>
+        <li class="vi"><span class="vn">2.9.0</span><span class="vd">02/06/2026</span><span class="vt">Modal 2 passos (Copiar → Abrir Grupo). Fallback file input. Footer na tela inicial.</span></li>
+        <li class="vi"><span class="vn">2.8.0</span><span class="vd">02/06/2026</span><span class="vt">MSAL.js popup (funciona no GitHub Pages). Auto-restore de sessão.</span></li>
+        <li class="vi"><span class="vn">2.7.0</span><span class="vd">02/06/2026</span><span class="vt">Fix Client ID para MS Graph Explorer. Fix clipboard race condition.</span></li>
+        <li class="vi"><span class="vn">2.6.0</span><span class="vd">01/06/2026</span><span class="vt">Abas Todos / Não Enviados com badge. Copyright Marcel H. Nogueira.</span></li>
+        <li class="vi"><span class="vn">2.5.0</span><span class="vd">30/05/2026</span><span class="vt">Controle de versão. Modal Sobre. Footer com versão.</span></li>
+        <li class="vi"><span class="vn">2.0.0</span><span class="vd">27/05/2026</span><span class="vt">Dual source: Arquivo Local + OneDrive. Login Microsoft.</span></li>
+        <li class="vi"><span class="vn">1.0.0</span><span class="vd">23/05/2026</span><span class="vt">Versão inicial — botão WhatsApp na planilha Excel (.xlsm).</span></li>
+      </ul>
+    </div>
+    <div class="about-ftr">
+      <button class="btn-cls" id="btn-close-about">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ═══ CONSTANTS ══════════════════════════════════════════════════
+var VERSION = '3.1.0';
+var OD_CLIENT = 'a3241171-a3cb-41fc-890e-fe6ae363ed34';
+var OD_TENANT = 'a4ef2c0b-1b53-4b1e-902f-bd34cf9d1efb';
+var OD_SCOPES = ['Files.Read','User.Read'];
+var OD_GRAPH  = 'https://graph.microsoft.com/v1.0';
+
+// ═══ PERSISTENT STATE ═══════════════════════════════════════════
+var sentKeys   = JSON.parse(localStorage.getItem('dv_sent')  || '{}');
+var knownKeys  = JSON.parse(localStorage.getItem('dv_known') || '{}');
+var mesaGroups = JSON.parse(localStorage.getItem('dv_mesas') || '{}');
+function saveSent()  { localStorage.setItem('dv_sent',  JSON.stringify(sentKeys));  }
+function saveKnown() { localStorage.setItem('dv_known', JSON.stringify(knownKeys)); }
+function saveMesas() { localStorage.setItem('dv_mesas', JSON.stringify(mesaGroups));}
+
+// Pre-load default mesas
+['32380','32390','32391','32392','32393','32394','32411','32412','32413','32414','32415','32416'].forEach(function(m){
+  if(!(m in mesaGroups)) mesaGroups[m]='';
+});
+saveMesas();
+
+// ═══ APP STATE ═══════════════════════════════════════════════════
+var fileHandle=null, lastMod=0, lastSize=0;
+var allRows=[], visRows=[], syncTimer=null, prevKeys=new Set();
+var sourceMode='local', activeTab='all', currentPreview=null;
+var configPrevScreen='upload-screen';
+var msalApp=null, odToken='', odExpiry=0, odFileId='', odFileName='', odAllFiles=[];
+
+function loadOdState(){
+  odToken   = localStorage.getItem('dv_od_at')  || '';
+  odExpiry  = parseInt(localStorage.getItem('dv_od_exp') || '0');
+  odFileId  = localStorage.getItem('dv_od_fid') || '';
+  odFileName= localStorage.getItem('dv_od_fn')  || '';
+}
+function saveOdState(){
+  localStorage.setItem('dv_od_at',  odToken);
+  localStorage.setItem('dv_od_exp', String(odExpiry));
+}
+
+// ═══ SERVICE WORKER CLEANUP ══════════════════════════════════════
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(r){ r.unregister(); });
+  });
+}
+
+// ═══ SCREEN ROUTING ══════════════════════════════════════════════
+function showScreen(id){
+  var all = ['upload-screen','picker-screen','config-screen','main-screen'];
+  all.forEach(function(s){
+    var el = document.getElementById(s);
+    el.style.display = 'none';
+  });
+  var target = document.getElementById(id);
+  if(id === 'upload-screen' || id === 'picker-screen'){
+    target.style.display = 'flex';
+  } else {
+    target.style.display = 'block';
+  }
+  if(id === 'main-screen'){
+    document.getElementById('app-footer').style.display = 'flex';
+  } else {
+    document.getElementById('app-footer').style.display = 'none';
+  }
+  if(id === 'config-screen') buildMesaList();
+}
+
+function setSt(st,lbl){
+  document.getElementById('slbl').textContent = lbl;
+  var d = document.getElementById('dot');
+  d.className = 'dot' + (st==='live' ? ' live' : st==='err' ? ' err' : st==='spin' ? ' spin' : '');
+}
+
+// ═══ SOURCE TOGGLE ════════════════════════════════════════════════
+function switchSrc(m){
+  sourceMode = m;
+  document.getElementById('tab-local').classList.toggle('active', m==='local');
+  document.getElementById('tab-od').classList.toggle('active',    m==='onedrive');
+  document.getElementById('panel-local').classList.toggle('active',    m==='local');
+  document.getElementById('panel-onedrive').classList.toggle('active', m==='onedrive');
+}
+
+// Show file:// warning
+if(location.protocol === 'file:'){
+  window.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('local-warn').style.display = 'block';
+  });
+}
+
+// ═══ LOCAL FILE ═══════════════════════════════════════════════════
+function openFile(){
+  if(location.protocol === 'file:' || !window.showOpenFilePicker){
+    document.getElementById('file-input').click();
+    return;
+  }
+  window.showOpenFilePicker({
+    types:[{description:'Excel',accept:{'application/vnd.ms-excel':['.xlsx','.xlsm','.xls']}}]
+  }).then(function(picks){
+    fileHandle = picks[0];
+    sourceMode = 'local';
+    document.getElementById('fname').textContent = fileHandle.name;
+    showScreen('main-screen');
+    setSt('spin','Lendo...');
+    readLocalFile(true).then(function(){ startLocalWatch(); });
+  }).catch(function(ex){ if(ex.name !== 'AbortError') alert('Erro: ' + ex.message); });
+}
+
+function handleFileInput(input){
+  var file = input.files[0];
+  if(!file) return;
+  sourceMode = 'local';
+  document.getElementById('fname').textContent = file.name;
+  showScreen('main-screen');
+  setSt('spin','Lendo...');
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true});
+      processWorkbook(wb, true);
+      setSt('live','Arquivo carregado (sem sync automático)');
+    } catch(ex) { setSt('err', ex.message.slice(0,40)); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function startLocalWatch(){
+  clearInterval(syncTimer);
+  syncTimer = setInterval(function(){
+    if(!fileHandle) return;
+    fileHandle.getFile().then(function(f){
+      if(f.lastModified === lastMod && f.size === lastSize) return;
+      readLocalFile(false);
+    }).catch(function(){ setSt('err','Erro ao acessar'); });
+  }, 1000);
+}
+
+function readLocalFile(isFirst){
+  return fileHandle.getFile().then(function(f){
+    lastMod = f.lastModified; lastSize = f.size;
+    return f.arrayBuffer();
+  }).then(function(buf){
+    var wb = XLSX.read(new Uint8Array(buf), {type:'array', cellDates:true});
+    processWorkbook(wb, isFirst);
+    setSt('live','Local · 1s');
+  }).catch(function(ex){ setSt('err', ex.message.slice(0,40)); });
+}
+
+function changeSource(){
+  clearInterval(syncTimer);
+  fileHandle = null; lastMod = 0; lastSize = 0; allRows = []; visRows = [];
+  showScreen('upload-screen');
+  setSt('off','Aguardando...');
+}
+
+// ═══ MSAL / ONEDRIVE ═════════════════════════════════════════════
+function loadScript(src){
+  return new Promise(function(res,rej){
+    if(document.querySelector('script[src="'+src+'"]')){ res(); return; }
+    var s = document.createElement('script');
+    s.src = src; s.onload = res;
+    s.onerror = function(){ rej(new Error('Falha ao carregar MSAL')); };
+    document.head.appendChild(s);
+  });
+}
+
+function initMsal(){
+  if(msalApp) return Promise.resolve(msalApp);
+  return loadScript('https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.10.0/lib/msal-browser.min.js')
+    .then(function(){
+      msalApp = new msal.PublicClientApplication({
+        auth:{
+          clientId: OD_CLIENT,
+          authority: 'https://login.microsoftonline.com/' + OD_TENANT,
+          redirectUri: window.location.origin + window.location.pathname
+        },
+        cache:{ cacheLocation:'localStorage' }
+      });
+      return msalApp.initialize();
+    }).then(function(){
+      return msalApp.handleRedirectPromise();
+    }).then(function(resp){
+      if(resp && resp.accessToken){
+        odToken = resp.accessToken;
+        odExpiry = Date.now() + 3500000;
+        saveOdState();
+        afterOdLogin();
+      }
+      return msalApp;
+    });
+}
+
+function startMsalLogin(){
+  var btn = document.getElementById('btn-od-start');
+  btn.disabled = true; btn.textContent = '⏳ Abrindo login...';
+  document.getElementById('err-od').textContent = '';
+  initMsal().then(function(app){
+    return app.loginPopup({scopes: OD_SCOPES, prompt:'select_account'});
+  }).then(function(result){
+    odToken  = result.accessToken;
+    odExpiry = Date.now() + 3500000;
+    saveOdState();
+    afterOdLogin();
+  }).catch(function(ex){
+    if(ex.errorCode === 'popup_window_error'){
+      // Popup blocked — try redirect
+      initMsal().then(function(app){
+        app.loginRedirect({scopes:OD_SCOPES});
+      });
+    } else {
+      document.getElementById('err-od').textContent = 'Erro: ' + ex.message;
+    }
+  }).finally(function(){
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 21 21" style="flex-shrink:0"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg> Entrar com Microsoft';
+  });
+}
+
+function getOdToken(){
+  if(odToken && Date.now() < odExpiry) return Promise.resolve(odToken);
+  return initMsal().then(function(app){
+    var accounts = app.getAllAccounts();
+    if(!accounts.length) throw new Error('Sessão expirada.');
+    return app.acquireTokenSilent({scopes:OD_SCOPES, account:accounts[0]});
+  }).then(function(result){
+    odToken  = result.accessToken;
+    odExpiry = Date.now() + 3500000;
+    saveOdState();
+    return odToken;
+  });
+}
+
+function afterOdLogin(){
+  getOdToken().then(function(tk){
+    return fetch(OD_GRAPH+'/me', {headers:{Authorization:'Bearer '+tk}});
+  }).then(function(r){ return r.json(); }).then(function(me){
+    document.getElementById('od-uname').textContent  = me.displayName || me.userPrincipalName;
+    document.getElementById('od-uemail').textContent = me.userPrincipalName;
+    var ini = (me.displayName||me.userPrincipalName).split(' ').map(function(w){return w[0]||'';} ).join('').slice(0,2).toUpperCase();
+    document.getElementById('od-avatar').textContent = ini;
+  }).catch(function(){});
+
+  if(odFileId && odFileName){
+    sourceMode = 'onedrive';
+    document.getElementById('fname').textContent = odFileName;
+    showScreen('main-screen');
+    fetchOdFile(true).then(function(){ startOdWatch(); });
+  } else {
+    loadOdFileList().then(function(){ showScreen('picker-screen'); });
+  }
+}
+
+function odLogout(){
+  clearInterval(syncTimer);
+  ['dv_od_at','dv_od_exp','dv_od_fid','dv_od_fn'].forEach(function(k){ localStorage.removeItem(k); });
+  odToken=''; odFileId=''; odFileName='';
+  showScreen('upload-screen');
+  setSt('off','Aguardando...');
+}
+
+function loadOdFileList(){
+  var el = document.getElementById('file-list');
+  el.innerHTML = '<div class="fload">⏳ Carregando arquivos...</div>';
+  return getOdToken().then(function(tk){
+    var h = {Authorization:'Bearer '+tk};
+    return Promise.all([
+      fetch(OD_GRAPH+'/me/drive/recent?$top=50', {headers:h}).then(function(r){return r.json();}),
+      fetch(OD_GRAPH+"/me/drive/root/search(q='Devolu')?$top=20", {headers:h}).then(function(r){return r.json();}).catch(function(){return {value:[]};})
+    ]);
+  }).then(function(results){
+    var seen=new Set(), files=[];
+    [].concat(results[0].value||[], results[1].value||[]).forEach(function(f){
+      if(seen.has(f.id)) return;
+      if(!/\.(xlsx|xlsm|xls)$/i.test(f.name)) return;
+      seen.add(f.id); files.push(f);
+    });
+    odAllFiles = files;
+    renderOdFiles(files);
+  }).catch(function(ex){
+    el.innerHTML = '<div class="fload" style="color:#e74c3c">Erro: '+ex.message+'</div>';
+  });
+}
+
+function renderOdFiles(files){
+  var el = document.getElementById('file-list');
+  if(!files.length){ el.innerHTML='<div class="fload">Nenhuma planilha encontrada.</div>'; return; }
+  el.innerHTML = '';
+  files.forEach(function(f){
+    var mod = f.lastModifiedDateTime ? new Date(f.lastModifiedDateTime).toLocaleString('pt-BR') : '';
+    var div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = '<div style="font-size:20px">📄</div><div class="finfo"><strong>'+esc(f.name)+'</strong><span>'+mod+'</span></div>';
+    div.addEventListener('click', function(){ selectOdFile(f.id, f.name); });
+    el.appendChild(div);
+  });
+}
+
+function selectOdFile(id, name){
+  odFileId = id; odFileName = name;
+  localStorage.setItem('dv_od_fid', id);
+  localStorage.setItem('dv_od_fn',  name);
+  sourceMode = 'onedrive';
+  document.getElementById('fname').textContent = name;
+  showScreen('main-screen');
+  fetchOdFile(true).then(function(){ startOdWatch(); });
+}
+
+function fetchOdFile(isFirst){
+  setSt('spin','Sincronizando...');
+  return getOdToken().then(function(tk){
+    return fetch(OD_GRAPH+'/me/drive/items/'+odFileId+'/content', {headers:{Authorization:'Bearer '+tk}, cache:'no-store'});
+  }).then(function(res){
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return res.arrayBuffer();
+  }).then(function(buf){
+    var wb = XLSX.read(new Uint8Array(buf), {type:'array', cellDates:true});
+    processWorkbook(wb, isFirst);
+    setSt('live','OneDrive · 15s');
+  }).catch(function(ex){
+    setSt('err', ex.message.slice(0,40));
+    if(ex.message.includes('expirada')) odLogout();
+  });
+}
+
+function startOdWatch(){
+  clearInterval(syncTimer);
+  syncTimer = setInterval(function(){ fetchOdFile(false); }, 15000);
+}
+
+// ═══ WORKBOOK PROCESSING ═════════════════════════════════════════
+function processWorkbook(wb, isFirst){
+  var rows = extract(wb);
+  var curKeys = new Set(rows.map(function(r){ return r.key; }));
+
+  if(isFirst){
+    rows.forEach(function(r){ knownKeys[r.key] = true; });
+    saveKnown();
+  } else {
+    rows.forEach(function(r){ if(!knownKeys[r.key]) r.isNew = true; });
+    var changed = rows.length !== allRows.length
+      || rows.some(function(r){ return !prevKeys.has(r.key); })
+      || Array.from(prevKeys).some(function(k){ return !curKeys.has(k); });
+    if(changed){
+      var b = document.getElementById('sbar');
+      b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+    }
+  }
+  prevKeys = curKeys; allRows = rows;
+  populateFilters(rows); applyFilters(!isFirst);
+  document.getElementById('ls').textContent = 'Última leitura: '+new Date().toLocaleTimeString('pt-BR')+' · '+rows.length+' registros';
+}
+
+function extract(wb){
+  var sn = wb.SheetNames.find(function(n){ return n.toLowerCase().includes('acompan'); }) || wb.SheetNames[0];
+  var raw = XLSX.utils.sheet_to_json(wb.Sheets[sn], {header:1, defval:''});
+  var tn = wb.SheetNames.find(function(n){ return n.toLowerCase().includes('tel'); });
+  var mp = {};
+  if(tn){
+    XLSX.utils.sheet_to_json(wb.Sheets[tn], {header:1, defval:''}).slice(1).forEach(function(r){
+      var n=t(r[0]), p=t(r[3]); if(n) mp[n]=p;
+    });
+  }
+  var hdr = raw[0].map(function(h){ return t(h).toUpperCase(); });
+  function col(name){ return hdr.findIndex(function(h){ return h.includes(name); }); }
+  function C(f,fb){ return f>=0?f:fb; }
+  var iMot=C(col('MOTORISTA'),3), iCat=C(col('CATEGORIA'),5), iNum=C(col('NUMERO'),4);
+  var iMsa=C(col('MESA'),7),      iSet=C(col('SETOR'),8),     iDsc=C(col('DESCRI'),9);
+  var iSv=C(col('SUPERVISOR'),11),iVnd=C(col('VENDEDOR'),12), iVal=C(col('VALOR'),13);
+  var iMtv=C(col('MOTIVO'),15),   iObs=C(col('OBSERVA'),16),  iSta=C(col('STATUS'),17);
+
+  var rows=[];
+  raw.slice(1).forEach(function(r,idx){
+    var mot=t(r[iMot]), pdv=t(r[iDsc]);
+    if(!mot||mot==='-'||!pdv||pdv==='-') return;
+    var transp=t(r[iCat]),tel=t(r[iNum]),mesa=t(r[iMsa]),setor=t(r[iSet]);
+    var sv=t(r[iSv]),vnd=t(r[iVnd]),motivo=t(r[iMtv]),obs=t(r[iObs]),status=t(r[iSta]);
+    var placa=mp[mot]||'', valor='';
+    var vr=r[iVal];
+    if(vr!==''&&vr!=null){
+      var n=parseFloat(t(vr).replace(',','.'));
+      if(!isNaN(n)&&n>0) valor='R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    var key=mot+'||'+mesa+'||'+pdv+'||'+idx;
+    var grpLink=mesaGroups[mesa]||'';
+    var msg='Transportadora: '+transp+'\n\nMotorista:\n'+mot+' | '+placa+'\nTel: '+tel+'\n\nVendedor:\n'+vnd+'\nSetor: '+setor+' | Mesa: '+mesa+'\nSv.: '+sv+'\n\nPDV:\n'+pdv+'\nValor: '+valor+'\nMotivo: '+motivo+(obs?'\nObs: '+obs:'')+'\n------------------------';
+    var url=grpLink ? grpLink : 'https://wa.me/?text='+encodeURIComponent(msg);
+    rows.push({key:key,mot:mot,placa:placa,tel:tel,transp:transp,mesa:mesa,setor:setor,sv:sv,vnd:vnd,pdv:pdv,valor:valor,motivo:motivo,obs:obs,status:status,grpLink:grpLink,msg:msg,url:url,isNew:false});
+  });
+  return rows;
+}
+
+function t(v){ return String(v||'').trim(); }
+function esc(v){ return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ═══ FILTERS ══════════════════════════════════════════════════════
+function populateFilters(rows){
+  var se=document.getElementById('fsv'), me=document.getElementById('fmt');
+  var cs=se.value, cm=me.value;
+  se.innerHTML='<option value="">Todos os supervisores</option>';
+  me.innerHTML='<option value="">Todos os motivos</option>';
+  Array.from(new Set(rows.map(function(r){return r.sv;}).filter(Boolean))).sort().forEach(function(v){se.appendChild(new Option(v,v));});
+  Array.from(new Set(rows.map(function(r){return r.motivo;}).filter(Boolean))).sort().forEach(function(v){me.appendChild(new Option(v,v));});
+  if(cs)se.value=cs; if(cm)me.value=cm;
+}
+
+function applyFilters(hl){
+  var q=document.getElementById('search').value.toLowerCase();
+  var sv=document.getElementById('fsv').value, mt=document.getElementById('fmt').value, st=document.getElementById('fst').value;
+  var base=allRows.filter(function(r){
+    var tx=(r.mot+r.pdv+r.sv+r.vnd+r.motivo+r.obs).toLowerCase();
+    return(!q||tx.includes(q))&&(!sv||r.sv===sv)&&(!mt||r.motivo===mt)&&(!st||r.status===st);
+  });
+  visRows = activeTab==='unsent' ? base.filter(function(r){return !sentKeys[r.key];}) : base;
+  updateBadges();
+  renderCards(hl);
+}
+
+function updateBadges(){
+  var unsent=allRows.filter(function(r){return !sentKeys[r.key];}).length;
+  var ba=document.getElementById('badge-all'), bu=document.getElementById('badge-unsent');
+  ba.textContent=allRows.length; ba.className='tab-badge'+(allRows.length?'':' zero');
+  bu.textContent=unsent;         bu.className='tab-badge'+(unsent?'':' zero');
+}
+
+// ═══ RENDER CARDS ════════════════════════════════════════════════
+var WIC='<svg style="width:14px;height:14px;fill:#fff;vertical-align:middle" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.48 2 2 6.48 2 12c0 1.74.46 3.37 1.25 4.79L2 22l5.34-1.4A9.96 9.96 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18a8.2 8.2 0 01-4.18-1.14l-.3-.18-3.17.83.84-3.08-.2-.31A8.19 8.19 0 013.8 12c0-4.52 3.68-8.2 8.2-8.2s8.2 3.68 8.2 8.2-3.68 8.2-8.2 8.2z"/></svg>';
+
+function stClass(st){
+  if(st==='Devolução')return 'st-dev'; if(st==='Aguardando')return 'st-agu';
+  if(st==='Repasse')return 'st-rep';   if(st==='Resolvido')return 'st-res';
+  return 'st-def';
+}
+
+function renderCards(hl){
+  var wrap=document.getElementById('cards'), prev=wrap.children.length;
+  wrap.innerHTML='';
+  document.getElementById('cnt').textContent=visRows.length+' registro(s)';
+  document.getElementById('empty').style.display=visRows.length?'none':'block';
+  visRows.forEach(function(r,i){
+    var isSent=!!sentKeys[r.key], isNew=r.isNew||!knownKeys[r.key], sc=stClass(r.status);
+    var badges='';
+    if(isNew)    badges+='<span class="badge-novo">🆕 Novo</span>';
+    if(!isSent)  badges+='<span class="badge-ns">⏳ Não compartilhado</span>';
+    var div=document.createElement('div');
+    div.className='card '+sc+(hl&&isNew?' is-new':'');
+    div.innerHTML=
+      '<div class="card-body">'+
+      '<div class="c-num">'+esc(String(i+1))+'</div>'+
+      '<div>'+
+        '<div class="col-lbl">Motorista</div>'+
+        '<span class="st-badge">'+esc(r.status||'—')+'</span>'+
+        '<div class="mname">'+esc(r.mot)+'</div>'+
+        '<div class="mplaca">'+esc(r.placa)+'</div>'+
+        '<div class="mtel">'+esc(r.tel)+'</div>'+
+        (badges?'<div class="badges">'+badges+'</div>':'')+
+      '</div>'+
+      '<div><div class="col-lbl">Vendedor</div><div style="font-size:12px">'+esc(r.vnd)+'</div></div>'+
+      '<div>'+
+        '<div class="col-lbl">Sv. / Mesa</div>'+
+        '<span class="sv-tag">'+esc(r.sv)+'</span>'+
+        '<div class="mesa-lbl">Mesa: '+esc(r.mesa)+(r.grpLink?' <span class="has-grp">📱 OK</span>':'')+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div class="col-lbl">PDV</div>'+
+        '<div class="pdv-name">'+esc(r.pdv)+'</div>'+
+        (r.obs?'<div class="obs-text">📝 '+esc(r.obs)+'</div>':'')+
+      '</div>'+
+      '<div><div class="col-lbl">Valor</div><div class="vl">'+esc(r.valor)+'</div></div>'+
+      '<div><div class="col-lbl">Motivo</div><div class="mt">'+esc(r.motivo)+'</div></div>'+
+      '<div style="display:flex;align-items:flex-start;justify-content:flex-end">'+
+        '<button class="btn-wpp'+(isSent?' sent':'')+'" data-idx="'+i+'">'+(isSent?WIC+' ENVIADO':WIC+' ENVIAR')+'</button>'+
+      '</div>'+
+      '</div>';
+    wrap.appendChild(div);
+  });
+}
+
+// ═══ MODAL ════════════════════════════════════════════════════════
+function openPreview(i){
+  var r=visRows[i]; currentPreview=r;
+  document.getElementById('pmsg').textContent=r.msg;
+  document.getElementById('modal-title').textContent='📲 Mesa '+esc(r.mesa);
+  document.getElementById('copy-toast').style.display='none';
+  var meta=document.getElementById('modal-meta');
+  var sg=document.getElementById('step-guide');
+  var bSimple=document.getElementById('btn-simple-send');
+  var bCopy=document.getElementById('btn-copy-msg');
+  var bGrp=document.getElementById('btn-open-grp');
+  bCopy.textContent='📋 1. Copiar'; bCopy.className='btn-copy-msg'; bGrp.disabled=true;
+  document.getElementById('s1').innerHTML='① Clique em <strong>Copiar Mensagem</strong>';
+  document.getElementById('s2').innerHTML='② Clique em <strong>Abrir Grupo</strong>'; document.getElementById('s2').style.color='#888';
+  document.getElementById('s3').innerHTML='③ No grupo: <strong>Ctrl+V</strong> para colar'; document.getElementById('s3').style.color='#888';
+  if(r.grpLink){
+    meta.className='modal-meta ok'; meta.innerHTML='✅ <strong>Grupo da Mesa '+esc(r.mesa)+' configurado</strong>';
+    sg.style.display='block'; bSimple.style.display='none'; bCopy.style.display='inline-block'; bGrp.style.display='inline-block';
+  } else {
+    meta.className='modal-meta warn';
+    meta.innerHTML='⚠️ Mesa <strong>'+esc(r.mesa)+'</strong> sem grupo. <a href="#" id="cfg-link-modal" style="color:#d35400">Configurar →</a>';
+    sg.style.display='none'; bSimple.href=r.url; bSimple.style.display='inline-block'; bCopy.style.display='none'; bGrp.style.display='none';
+  }
+  document.getElementById('modal').classList.add('open');
+  // Attach cfg link after render
+  var cfgLink=document.getElementById('cfg-link-modal');
+  if(cfgLink) cfgLink.addEventListener('click',function(e){e.preventDefault();closeModal();showScreen('config-screen');});
+}
+
+function copyMsgStep(){
+  if(!currentPreview) return;
+  navigator.clipboard.writeText(currentPreview.msg).then(function(){
+    document.getElementById('btn-copy-msg').textContent='✅ Copiado!';
+    document.getElementById('btn-copy-msg').className='btn-copy-msg copied';
+    document.getElementById('btn-open-grp').disabled=false;
+    document.getElementById('copy-toast').style.display='block';
+    document.getElementById('s1').innerHTML='① <s style="color:#888">Copiar</s> ✅';
+    document.getElementById('s2').style.color='#1a5276';
+    document.getElementById('s2').innerHTML='② <strong>Abrir Grupo ← próximo</strong>';
+  }).catch(function(){
+    document.getElementById('btn-open-grp').disabled=false;
+    document.getElementById('copy-toast').innerHTML='⚠️ Copie manualmente e cole no grupo.';
+    document.getElementById('copy-toast').style.display='block';
+  });
+}
+
+function openGrpStep(){
+  if(!currentPreview||!currentPreview.grpLink) return;
+  markSent(currentPreview);
+  window.open(currentPreview.grpLink,'_blank');
+  document.getElementById('s2').innerHTML='② <s style="color:#888">Abrir Grupo</s> ✅';
+  document.getElementById('s3').style.color='#1a5276';
+  document.getElementById('s3').innerHTML='③ <strong>Ctrl+V no grupo para colar</strong>';
+}
+
+function simpleSend(){
+  if(currentPreview) markSent(currentPreview);
+  closeModal();
+}
+
+function markSent(r){
+  sentKeys[r.key]=Date.now(); knownKeys[r.key]=true;
+  saveSent(); saveKnown();
+  allRows.forEach(function(row){if(row.key===r.key) row.isNew=false;});
+  setTimeout(function(){applyFilters(false);updateBadges();},400);
+}
+
+function closeModal(){ document.getElementById('modal').classList.remove('open'); currentPreview=null; }
+
+// ═══ CONFIG MESAS ════════════════════════════════════════════════
+function buildMesaList(){
+  var list=document.getElementById('mesa-list'); list.innerHTML='';
+  var mesas=new Set(Object.keys(mesaGroups));
+  allRows.forEach(function(r){if(r.mesa) mesas.add(r.mesa);});
+  mesas=Array.from(mesas).sort(function(a,b){return parseInt(a)-parseInt(b);});
+  if(!mesas.length){ list.innerHTML='<div style="text-align:center;color:#aaa;padding:24px">Nenhuma mesa. Clique em "+ Nova Mesa".</div>'; return; }
+  mesas.forEach(function(mesa){
+    var link=mesaGroups[mesa]||'', hasLink=!!link;
+    var card=document.createElement('div');
+    card.className='mesa-card'+(hasLink?'':' no-link');
+    card.id='mc-'+mesa;
+    var linkInpId='li-'+mesa;
+    card.innerHTML=
+      '<div class="mesa-row">'+
+        '<span class="mesa-num">Mesa '+esc(mesa)+'</span>'+
+        '<span class="mesa-st '+(hasLink?'ok':'nok')+'" id="ms-'+mesa+'">'+(hasLink?'✅ Configurado':'⚠️ Sem link')+'</span>'+
+      '</div>'+
+      '<div class="link-row">'+
+        '<input type="text" class="link-inp'+(hasLink?' has-link':'')+'" id="'+linkInpId+'"'+
+          ' placeholder="https://chat.whatsapp.com/..." value="'+esc(link)+'">'+
+        '<div class="mesa-btns">'+
+          '<button class="btn-sv"  data-mesa="'+esc(mesa)+'">💾 Salvar</button>'+
+          (hasLink?'<button class="btn-tst" data-mesa="'+esc(mesa)+'">🔗</button>':'')+
+          '<button class="btn-del" data-mesa="'+esc(mesa)+'">🗑️</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="mesa-hint">Obter link: WhatsApp → grupo → ⋮ Mais → Link do grupo → Copiar</div>';
+    list.appendChild(card);
+    // Attach events via addEventListener (no inline onclick = no escaping issues)
+    document.getElementById(linkInpId).addEventListener('input',function(){
+      this.classList.toggle('has-link',!!this.value.trim());
+    });
+    card.querySelector('.btn-sv').addEventListener('click',function(){
+      var m=this.dataset.mesa;
+      mesaGroups[m]=document.getElementById('li-'+m).value.trim();
+      saveMesas(); buildMesaList(); showCfgMsg('Mesa '+m+' salva ✅');
+    });
+    var tst=card.querySelector('.btn-tst');
+    if(tst) tst.addEventListener('click',function(){
+      var lk=mesaGroups[this.dataset.mesa]; if(lk) window.open(lk,'_blank');
+    });
+    card.querySelector('.btn-del').addEventListener('click',function(){
+      if(!confirm('Remover Mesa '+this.dataset.mesa+'?')) return;
+      delete mesaGroups[this.dataset.mesa]; saveMesas(); buildMesaList(); showCfgMsg('Mesa removida.');
+    });
+  });
+}
+
+function showCfgMsg(msg){ var el=document.getElementById('cfg-msg'); el.textContent=msg; setTimeout(function(){el.textContent='';},2500); }
+
+// ═══ ABOUT MODAL ═════════════════════════════════════════════════
+function openAbout(){ document.getElementById('about-overlay').classList.add('open'); }
+function closeAbout(){ document.getElementById('about-overlay').classList.remove('open'); }
+
+// ═══ EVENT LISTENERS ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function(){
+  // Header config button
+  document.getElementById('btn-cfg').addEventListener('click',function(){
+    configPrevScreen = document.getElementById('main-screen').style.display!=='none' ? 'main-screen' : 'upload-screen';
+    showScreen('config-screen');
+  });
+  document.getElementById('btn-back-cfg').addEventListener('click',function(){ showScreen(configPrevScreen); });
+  document.getElementById('btn-change').addEventListener('click', changeSource);
+  document.getElementById('btn-add-mesa').addEventListener('click',function(){
+    document.getElementById('add-form').classList.toggle('open');
+  });
+  document.getElementById('btn-cancel-add').addEventListener('click',function(){
+    document.getElementById('add-form').classList.remove('open');
+  });
+  document.getElementById('btn-confirm-add').addEventListener('click',function(){
+    var num=document.getElementById('new-mesa-num').value.trim();
+    var lnk=document.getElementById('new-mesa-link').value.trim();
+    if(!num){ alert('Digite o número da mesa.'); return; }
+    mesaGroups[num]=lnk; saveMesas();
+    document.getElementById('new-mesa-num').value='';
+    document.getElementById('new-mesa-link').value='';
+    document.getElementById('add-form').classList.remove('open');
+    buildMesaList(); showCfgMsg('Mesa '+num+' adicionada ✅');
+  });
+  document.getElementById('btn-modal-close').addEventListener('click', closeModal);
+  document.getElementById('btn-copy-msg').addEventListener('click', copyMsgStep);
+  document.getElementById('btn-open-grp').addEventListener('click', openGrpStep);
+  document.getElementById('btn-simple-send').addEventListener('click', simpleSend);
+  document.getElementById('btn-close-about').addEventListener('click', closeAbout);
+  document.getElementById('file-search').addEventListener('input',function(){
+    var q=this.value.toLowerCase();
+    renderOdFiles(q ? odAllFiles.filter(function(f){return f.name.toLowerCase().includes(q);}) : odAllFiles);
+  });
+  document.getElementById('search').addEventListener('input',  function(){ applyFilters(false); });
+  document.getElementById('fsv').addEventListener('change',    function(){ applyFilters(false); });
+  document.getElementById('fmt').addEventListener('change',    function(){ applyFilters(false); });
+  document.getElementById('fst').addEventListener('change',    function(){ applyFilters(false); });
+  // Tab buttons
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      activeTab=this.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      this.classList.add('active');
+      applyFilters(false);
+    });
+  });
+  // Card click delegation (no inline onclick)
+  document.getElementById('cards').addEventListener('click',function(e){
+    var btn=e.target.closest('.btn-wpp');
+    if(btn){ openPreview(parseInt(btn.dataset.idx)); }
+  });
+  // Modal overlay click to close
+  document.getElementById('modal').addEventListener('click',function(e){if(e.target===this) closeModal();});
+  document.getElementById('about-overlay').addEventListener('click',function(e){if(e.target===this) closeAbout();});
+
+  // Auto-restore OneDrive session
+  loadOdState();
+  if(odFileId){
+    initMsal().then(function(app){
+      var accounts=app.getAllAccounts();
+      if(!accounts.length) return;
+      return app.acquireTokenSilent({scopes:OD_SCOPES,account:accounts[0]}).then(function(result){
+        odToken=result.accessToken; odExpiry=Date.now()+3500000; saveOdState();
+        sourceMode='onedrive';
+        document.getElementById('fname').textContent=odFileName;
+        showScreen('main-screen');
+        setSt('spin','Reconectando...');
+        return fetchOdFile(true);
+      }).then(function(){ startOdWatch(); });
+    }).catch(function(){});
+  }
+});
+
+window.addEventListener('beforeunload', function(){ clearInterval(syncTimer); });
+</script>
+</body>
+</html>
